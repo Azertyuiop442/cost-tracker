@@ -1,0 +1,12 @@
+{
+  "name": "cost-tracker",
+  "version": "1.0.0",
+  "description": "Real-time token cost, prompt cache savings, and context monitor for Command Code",
+  "type": "module",
+  "private": true,
+  "commandcode": {
+    "mods": [
+      "./index.ts"
+    ]
+  }
+}

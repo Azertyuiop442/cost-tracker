@@ -1,0 +1,116 @@
+<svg viewBox="0 0 1200 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="arch-title arch-desc" width="100%">
+  <title id="arch-title">Cost Tracker Architecture &amp; Data Pipeline</title>
+  <desc id="arch-desc">Real-time token cost, prompt cache savings, and context window monitor architecture for Command Code.</desc>
+  <defs>
+    <style>
+      text { font-family: 'Geist', -apple-system, 'Helvetica Neue', sans-serif; }
+      .hdr { font-family: 'Geist Mono','Menlo',monospace; font-size: 8px; font-weight: 600; letter-spacing: 0.18em; fill: #575653; }
+      .tag { font-family: 'Geist Mono','Menlo',monospace; font-size: 7px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+      .name { font-size: 12px; font-weight: 600; fill: #CECDC3; }
+      .sub { font-family: 'Geist Mono','Menlo',monospace; font-size: 9px; font-weight: 400; fill: #878580; }
+      .lbl { font-family: 'Geist Mono','Menlo',monospace; font-size: 7.5px; font-weight: 500; letter-spacing: 0.06em; }
+    </style>
+    <marker id="aG" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#878580"/></marker>
+    <marker id="aC" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#24837B"/></marker>
+    <marker id="aGr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#879A39"/></marker>
+    <marker id="aP" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#DA702C"/></marker>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1200" height="640" fill="#100F0F"/>
+  <text x="24" y="40" class="hdr">01 · ARCHITECTURE &amp; DATA PIPELINE</text>
+
+  <!-- Connectors -->
+  <!-- 1. Turn to Dissector -->
+  <line x1="204" y1="318" x2="272" y2="318" stroke="#575653" stroke-width="1.2" marker-end="url(#aG)"/>
+  <rect x="216" y="311" width="44" height="13" fill="#100F0F"/>
+  <text x="238" y="321" fill="#878580" class="lbl" text-anchor="middle">USAGE</text>
+
+  <!-- 2. Dissector to Pricing Engine -->
+  <line x1="492" y1="318" x2="560" y2="318" stroke="#575653" stroke-width="1.2" marker-end="url(#aG)"/>
+  <rect x="506" y="311" width="40" height="13" fill="#100F0F"/>
+  <text x="526" y="321" fill="#878580" class="lbl" text-anchor="middle">TOKENS</text>
+
+  <!-- 3. Engine to 3 Consumers -->
+  <!-- Upper: Terminal UI -->
+  <path d="M 780,290 H 810 Q 818,290 818,280 V 196 Q 818,186 828,186 H 858" fill="none" stroke="#24837B" stroke-width="1.2" marker-end="url(#aC)"/>
+
+  <!-- Middle: Plexus Bridge -->
+  <line x1="780" y1="318" x2="858" y2="318" stroke="#879A39" stroke-width="1.2" marker-end="url(#aGr)"/>
+  <rect x="796" y="311" width="46" height="13" fill="#100F0F"/>
+  <text x="819" y="321" fill="#879A39" class="lbl" text-anchor="middle">IPC STATS</text>
+
+  <!-- Lower: Atomic WAL -->
+  <path d="M 780,346 H 810 Q 818,346 818,356 V 440 Q 818,450 828,450 H 858" fill="none" stroke="#575653" stroke-width="1.2" marker-end="url(#aG)"/>
+
+  <!-- Card 1: Turn Completion Hook Tap -->
+  <rect x="24" y="272" width="180" height="92" rx="6" fill="#1C1B1A" stroke="#343331" stroke-width="1"/>
+  <svg x="36" y="282" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DA702C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+  <text x="114" y="314" class="name" text-anchor="middle">onStop Hook</text>
+  <text x="114" y="330" class="sub" text-anchor="middle">zero-latency turn tap</text>
+  <text x="114" y="350" fill="#DA702C" class="tag" text-anchor="middle">raw telemetry</text>
+
+  <!-- Card 2: Token Dissector -->
+  <rect x="272" y="222" width="220" height="192" rx="6" fill="#1C1B1A" stroke="#343331" stroke-width="1"/>
+  <svg x="284" y="234" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#878580" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+  <text x="382" y="254" class="name" text-anchor="middle">Token Dissector</text>
+  <text x="382" y="270" class="sub" text-anchor="middle">three-way token categorization</text>
+
+  <!-- Metric pills inside Token Dissector -->
+  <rect x="286" y="284" width="192" height="32" rx="4" fill="#282726" stroke="#343331" stroke-width="1"/>
+  <text x="298" y="304" class="sub" fill="#CECDC3">Input</text>
+  <text x="466" y="304" font-family="'Geist Mono','Menlo',monospace" font-size="9px" font-weight="600" fill="#4385BE" text-anchor="end">inputTokens</text>
+
+  <rect x="286" y="322" width="192" height="32" rx="4" fill="#282726" stroke="#343331" stroke-width="1"/>
+  <text x="298" y="342" class="sub" fill="#CECDC3">Output</text>
+  <text x="466" y="342" font-family="'Geist Mono','Menlo',monospace" font-size="9px" font-weight="600" fill="#8B7EC8" text-anchor="end">outputTokens</text>
+
+  <rect x="286" y="360" width="192" height="32" rx="4" fill="#282726" stroke="#879A39" stroke-width="1"/>
+  <text x="298" y="380" class="sub" fill="#879A39">Cache Read</text>
+  <text x="466" y="380" font-family="'Geist Mono','Menlo',monospace" font-size="9px" font-weight="600" fill="#879A39" text-anchor="end">cacheReadTokens</text>
+
+  <!-- Card 3: Pricing & Savings Engine (Focal Card) -->
+  <rect x="560" y="202" width="220" height="232" rx="6" fill="#1C1B1A" stroke="#24837B" stroke-width="1.2"/>
+  <svg x="572" y="214" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#24837B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+  <text x="670" y="234" class="name" text-anchor="middle">Pricing Engine</text>
+  <text x="670" y="250" class="sub" text-anchor="middle">official rates &amp; prompt cache</text>
+
+  <rect x="574" y="264" width="192" height="68" rx="4" fill="#282726" stroke="#343331" stroke-width="1"/>
+  <text x="584" y="284" fill="#879A39" class="tag">Prompt Cache Savings</text>
+  <text x="584" y="302" font-family="'Geist Mono','Menlo',monospace" font-size="8.5px" font-weight="600" fill="#CECDC3">T_cache × (P_in - P_cache)</text>
+  <text x="584" y="318" class="sub">up to -90% discount</text>
+
+  <rect x="574" y="340" width="192" height="80" rx="4" fill="#282726" stroke="#343331" stroke-width="1"/>
+  <text x="584" y="360" fill="#24837B" class="tag">Context Window Gauge</text>
+  <!-- Mini Gauge Bar -->
+  <rect x="584" y="370" width="172" height="6" rx="3" fill="#343331"/>
+  <rect x="584" y="370" width="40" height="6" rx="3" fill="#24837B"/>
+  <text x="584" y="392" font-family="'Geist Mono','Menlo',monospace" font-size="8.5px" fill="#CECDC3">45.2K / 200K (23%)</text>
+  <text x="584" y="406" class="sub">compaction proximity warning</text>
+
+  <!-- Consumer 1: Terminal Box UI -->
+  <rect x="862" y="140" width="230" height="92" rx="6" fill="#1C1B1A" stroke="#343331" stroke-width="1"/>
+  <svg x="874" y="150" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#24837B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/></svg>
+  <text x="977" y="176" class="name" text-anchor="middle">Terminal Box UI</text>
+  <text x="977" y="192" class="sub" text-anchor="middle">/cost · /cost-history · /cost-models</text>
+  <text x="977" y="212" fill="#24837B" class="tag" text-anchor="middle">flexoki dark panel</text>
+
+  <!-- Consumer 2: Plexus Mod Bridge -->
+  <rect x="862" y="272" width="230" height="92" rx="6" fill="#1C1B1A" stroke="#879A39" stroke-width="1.2"/>
+  <svg x="874" y="282" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#879A39" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+  <text x="977" y="308" class="name" text-anchor="middle">Plexus Mod Bridge</text>
+  <text x="977" y="324" class="sub" text-anchor="middle">live status bar &amp; sidebar IPC</text>
+  <text x="977" y="344" fill="#879A39" class="tag" text-anchor="middle">real-time telemetry</text>
+
+  <!-- Consumer 3: Atomic Persistence WAL -->
+  <rect x="862" y="404" width="230" height="92" rx="6" fill="#1C1B1A" stroke="#343331" stroke-width="1"/>
+  <svg x="874" y="414" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#878580" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
+  <text x="977" y="440" class="name" text-anchor="middle">Atomic State WAL</text>
+  <text x="977" y="456" class="sub" text-anchor="middle">project index &amp; crash checkpoints</text>
+  <text x="977" y="476" fill="#575653" class="tag" text-anchor="middle">zero lost tokens</text>
+
+  <!-- Guard Note at bottom -->
+  <rect x="24" y="530" width="300" height="52" rx="6" fill="#1C1B1A" stroke="#343331" stroke-width="1"/>
+  <text x="38" y="552" fill="#D0A215" class="tag">Local Calculation Guard</text>
+  <text x="38" y="568" class="sub">100% computed on-device · zero cloud tracking</text>
+</svg>
