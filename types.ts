@@ -13,8 +13,12 @@ export interface ModelPrice {
   inputPerM: number;
   outputPerM: number;
   cacheReadPerM?: number;
-
   contextWindow?: number;
+  timeOfDay?: {
+    windows: string;
+    factor?: number;
+    peak?: { inputPerM: number; outputPerM: number; cacheReadPerM?: number };
+  };
 }
 
 export interface PricingTable {

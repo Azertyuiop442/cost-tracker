@@ -2,7 +2,7 @@
 import { mkdirSync, existsSync, unlinkSync } from 'node:fs';
 import type { ModApi } from '@commandcode/harness';
 import type { SessionStats, UsageRecord, ProjectData } from './types.ts';
-import { currentSessionId, harnessSessionId, lastModelSeen, lastSeenSessionId, readBridgeJson, session, sessionFlushed, ttyCache, writeBridgeJson, setSession, setSessionFlushed, setLastModelSeen, setLastSeenSessionId, setHarnessSessionId } from './state.ts';
+import { currentSessionId, harnessSessionId, lastModelSeen, lastSeenSessionId, readBridgeJson, session, sessionFlushed, writeBridgeJson, setSession, setSessionFlushed, setLastModelSeen, setLastSeenSessionId, setHarnessSessionId } from './state.ts';
 import { deleteSessionFile, loadIndex, loadSessionFile, saveIndex, saveSessionFile, sessionFileName } from './persistence.ts';
 import { cacheSavingsFor, getPricing, normalizeModelId } from './pricing.ts';
 import { purgeWorkspaceSectionsCache } from './history.ts';
@@ -10,9 +10,12 @@ import { log } from './debug.ts';
 
 const CHECKPOINT_DIR = `${process.env.CC_SIDEBAR_DIR || "/tmp/cc-sidebar"}/cost-tracker-checkpoints`;
 
-export function checkpointPath(): string {
+const LEGACY_SHARED_KEYS = ["unknown", "."];
+
+export function checkpointPath(): string | null {
   const sid = currentSessionId();
-  const key = (sid || ttyCache || "unknown").replace(/[^A-Za-z0-9_.-]/g, "_");
+  if (!sid) return null;
+  const key = sid.replace(/[^A-Za-z0-9_.-]/g, "_");
   return `${CHECKPOINT_DIR}/cp-${key}.json`;
 }
 
@@ -26,8 +29,6 @@ function checkpointCandidates(): string[] {
     const m = argv.match(/--session\s+([A-Za-z0-9_.-]+)/);
     if (m) keys.add(m[1]);
   } catch {}
-  if (ttyCache) keys.add(ttyCache);
-  keys.add("unknown");
   return [...keys];
 }
 
@@ -40,7 +41,7 @@ export function clearCheckpoint(): void {
 }
 
 export function checkpointPaths(): string[] {
-  const out = new Set<string>();
+  const out = new Set<string>(LEGACY_SHARED_KEYS.map((k) => `${CHECKPOINT_DIR}/cp-${k}.json`));
   for (const key of checkpointCandidates()) {
     out.add(`${CHECKPOINT_DIR}/cp-${key}.json`);
   }
@@ -58,6 +59,11 @@ interface CheckpointShape {
 
 export function saveCheckpoint(): void {
   try {
+    const path = checkpointPath();
+    if (!path) {
+      log("save: refused (no session identity)");
+      return;
+    }
     const cp: CheckpointShape = {
       session,
       sessionFlushed,
@@ -67,11 +73,7 @@ export function saveCheckpoint(): void {
       checkpointedAt: Date.now(),
     };
     mkdirSync(CHECKPOINT_DIR, { recursive: true });
-
-    writeBridgeJson(checkpointPath(), cp);
-    if (ttyCache) {
-      writeBridgeJson(`${CHECKPOINT_DIR}/cp-${ttyCache}.json`, cp);
-    }
+    writeBridgeJson(path, cp);
   } catch {}
 }
 
@@ -88,6 +90,11 @@ export function restoreCheckpoint(): boolean {
       log(`restore:   ${key} → checkpoint=${hasCp ? "yes" : "no"} sessionFile=${hasSess ? "yes" : "no"}`);
     }
 
+    if (candidates.length === 0) {
+      log("restore: no session identity - widget starts at 0");
+      return false;
+    }
+
     let cp: CheckpointShape | null = null;
     let loadedKey = "";
     for (const key of candidates) {
@@ -102,18 +109,12 @@ export function restoreCheckpoint(): boolean {
 
     let flushed: ReturnType<typeof loadSessionFile> = null;
     let flushedSid = "";
-    const sid = currentSessionId() || loadedKey;
-    if (sid) {
-      flushed = loadSessionFile(sid);
-      flushedSid = sid;
-    } else {
-      for (const key of candidates) {
-        const f = loadSessionFile(key);
-        if (f && (f.turns || 0) > 0) {
-          flushed = f;
-          flushedSid = key;
-          break;
-        }
+    for (const key of candidates) {
+      const f = loadSessionFile(key);
+      if (f && (f.turns || 0) > 0) {
+        flushed = f;
+        flushedSid = key;
+        break;
       }
     }
     if (!cp && flushed && (flushed.turns || 0) > 0) {
