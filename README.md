@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <b>Real-time token cost, prompt cache savings, and context window monitor for Command Code.</b>
+  <b>Real-time token cost, volume accounting, and cache telemetry for Command Code.</b>
 </p>
 
 <p align="center">
@@ -12,7 +12,7 @@
   <a href="LICENSE.md"><img src="https://shieldcn.dev/badge/license-MIT.svg?variant=outline" alt="License"/></a>
 </p>
 
-Built for **[Plexus](https://github.com/Azertyuiop442/Plexus)**. Pushes live token pricing, prompt cache savings, and context window gauges directly into the Plexus sidebar and dock.
+Built for **[Plexus](https://github.com/Azertyuiop442/Plexus)**. Streams live cost, token volume, cache hit ratio, and turn metrics directly into the Plexus dock and sidebar.
 
 ---
 
@@ -27,9 +27,9 @@ git clone https://github.com/Azertyuiop442/cost-tracker.git ~/.commandcode/mods/
 ## Features
 
 - **Real-Time Cost Tracking**: Computes live token expenses per turn and session across all major providers.
-- **Prompt Cache Savings**: Calculates exact dollars saved when prompt cache reads replace base tokens.
-- **Context Window Gauge**: Live gauge tracking conversation size against active model limits.
-- **Plexus Mod Bridge**: Streams live JSON telemetry to `/tmp/cc-sidebar/mods-data/cost-tracker.json`.
+- **Prompt Cache & Hit Ratio**: Tracks cache reads and live cache hit percentage directly in the telemetry stream.
+- **Token Volume Accounting**: Accumulates input and output tokens per turn, session, and project workspace.
+- **Plexus Mod Bridge**: Streams live dock segments (cost, tokens in/out, cache hit %, turns) to `/tmp/cc-sidebar/mods-data/cost-tracker.json`.
 - **Zero-Loss Persistence**: Atomic checkpoints save session history on disk across restarts.
 
 ---
