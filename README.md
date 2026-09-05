@@ -1,18 +1,42 @@
-<h1 align="center">COST TRACKER</h1>
+<p align="center">
+  <img src="assets/banner.jpg" alt="Cost Tracker - Real-time token cost, prompt cache savings, and context window monitor" width="100%"/>
+</p>
 
 <p align="center">
   <b>Real-time token cost, prompt cache savings, and context window monitor for Command Code.</b>
 </p>
 
 <p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/Version-v0.1.0-24837B?style=flat-square&amp;labelColor=1C1B1A" alt="Version"/></a>
-  <a href="https://peership.dev"><img src="https://img.shields.io/badge/Feedback-Want_to_leave_a_feedback%3F-8B7EC8?style=flat-square&amp;labelColor=1C1B1A" alt="Want to leave a feedback?"/></a>
-  <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-DA702C?style=flat-square&amp;labelColor=1C1B1A" alt="License"/></a>
+  <a href="https://github.com/Azertyuiop442/cost-tracker/releases"><img src="https://shieldcn.dev/badge/cost--tracker-v0.1.0-24837b.svg?variant=outline" alt="Version"/></a>
+  <a href="https://github.com/Azertyuiop442/cost-tracker"><img src="https://shieldcn.dev/github/stars/Azertyuiop442/cost-tracker.svg?variant=outline" alt="GitHub Stars"/></a>
+  <a href="LICENSE.md"><img src="https://shieldcn.dev/badge/license-MIT.svg?variant=outline" alt="License"/></a>
 </p>
 
-<p align="center">
-  <img src="https://skillicons.dev/icons?i=typescript,bash,git,linux,apple" alt="Tech Stack"/>
-</p>
+Built for **[Plexus](https://github.com/Azertyuiop442/Plexus)**. Pushes live token pricing, prompt cache savings, and context window gauges directly into the Plexus sidebar and dock.
+
+---
+
+## Installation
+
+```bash
+git clone https://github.com/Azertyuiop442/cost-tracker.git ~/.commandcode/mods/cost-tracker
+```
+
+---
+
+## Features
+
+- **Real-Time Cost Tracking**: Computes live token expenses per turn and session across all major providers.
+- **Prompt Cache Savings**: Calculates exact dollars saved when prompt cache reads replace base tokens.
+- **Context Window Gauge**: Live gauge tracking conversation size against active model limits.
+- **Plexus Mod Bridge**: Streams live JSON telemetry to `/tmp/cc-sidebar/mods-data/cost-tracker.json`.
+- **Zero-Loss Persistence**: Atomic checkpoints save session history on disk across restarts.
+
+---
+
+## Architecture
+
+Cost Tracker operates as an autonomous background companion mod, hooking into session turns and publishing metrics via the Plexus Mod Bridge:
 
 <p align="center">
   <img src="assets/architecture.svg" alt="Cost Tracker Architecture &amp; Data Pipeline" width="100%"/>
@@ -20,22 +44,7 @@
 
 ---
 
-## 01. Compatibility
-
-> **Note**: Cost Tracker is primarily designed and optimized for **[Plexus](https://github.com/Azertyuiop442/Plexus)** (live sidebar metrics, dock telemetry, and interactive modals). While it functions in standard standalone terminals with Command Code, visual rendering and layout are best experienced inside Plexus.
-
----
-
-## 02. Quickstart
-
-```bash
-# Clone into Command Code mods directory (auto-registered via jiti)
-git clone https://github.com/Azertyuiop442/cost-tracker.git ~/.commandcode/mods/cost-tracker
-```
-
----
-
-## 03. Commands
+## Commands
 
 | Command | Description | Scope |
 |---|---|:---:|
@@ -51,18 +60,6 @@ git clone https://github.com/Azertyuiop442/cost-tracker.git ~/.commandcode/mods/
 
 ---
 
-## 04. Features at a Glance
+## License
 
-- **Prompt Cache Savings**: Calculates exact dollars saved when prompt cache reads replace full-price tokens.
-- **Context Window Gauge**: Live percentage showing conversation proximity to model compaction limit.
-- **Plexus Mod Bridge**: Pushes lightweight JSON telemetry to `/tmp/cc-sidebar/mods-data/` in real time.
-- **Atomic Disk Checkpoints**: Zero token count loss on sudden terminal exits.
-
----
-
-<h2 align="center">Feedback &amp; Community</h2>
-
-<p align="center">
-  Have feedback, bug reports, or ideas? We're actively co-testing on PeerShip! <br/>
-  <b><a href="https://peership.dev">Test Cost Tracker and leave feedback on PeerShip (peership.dev)</a></b>
-</p>
+MIT License. Free for personal, academic, and open-source use.

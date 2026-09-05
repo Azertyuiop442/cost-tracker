@@ -1,116 +1,140 @@
-<svg viewBox="0 0 1200 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="arch-title arch-desc" width="100%">
-  <title id="arch-title">Cost Tracker Architecture &amp; Data Pipeline</title>
-  <desc id="arch-desc">Real-time token cost, prompt cache savings, and context window monitor architecture for Command Code.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" width="100%" role="img" aria-labelledby="arch-title arch-desc">
+  <title id="arch-title">How Cost Tracker intercepts &amp; tracks token consumption</title>
+  <desc id="arch-desc">Event-driven turn interception, token usage accounting, and real-time dispatch to Plexus.</desc>
   <defs>
-    <style>
-      text { font-family: 'Geist', -apple-system, 'Helvetica Neue', sans-serif; }
-      .hdr { font-family: 'Geist Mono','Menlo',monospace; font-size: 8px; font-weight: 600; letter-spacing: 0.18em; fill: #575653; }
-      .tag { font-family: 'Geist Mono','Menlo',monospace; font-size: 7px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
-      .name { font-size: 12px; font-weight: 600; fill: #CECDC3; }
-      .sub { font-family: 'Geist Mono','Menlo',monospace; font-size: 9px; font-weight: 400; fill: #878580; }
-      .lbl { font-family: 'Geist Mono','Menlo',monospace; font-size: 7.5px; font-weight: 500; letter-spacing: 0.06em; }
-    </style>
-    <marker id="aG" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#878580"/></marker>
-    <marker id="aC" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#24837B"/></marker>
-    <marker id="aGr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#879A39"/></marker>
-    <marker id="aP" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#DA702C"/></marker>
+    <style><![CDATA[
+      *, *::before, *::after { box-sizing: border-box; }
+      .eyebrow { font-family: ui-monospace, 'SF Mono', 'Geist Mono', Menlo, monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; fill: #bfc0c0; }
+      .title { font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif; font-size: 32px; font-weight: 400; letter-spacing: -0.01em; fill: #f5f5f5; }
+      .sub { font-family: ui-monospace, 'SF Mono', 'Geist Mono', Menlo, monospace; font-size: 11px; fill: #bfc0c0; }
+      .node-name { font-family: -apple-system, 'Geist', 'Segoe UI', system-ui, sans-serif; font-size: 14px; font-weight: 600; fill: #f5f5f5; }
+      .node-sub { font-family: ui-monospace, 'SF Mono', 'Geist Mono', Menlo, monospace; font-size: 10px; fill: #bfc0c0; }
+      .tag { font-family: ui-monospace, 'SF Mono', 'Geist Mono', Menlo, monospace; font-size: 7.5px; font-weight: 600; letter-spacing: 0.12em; }
+      .arrow-lbl { font-family: ui-monospace, 'SF Mono', 'Geist Mono', Menlo, monospace; font-size: 8px; font-weight: 500; letter-spacing: 0.10em; }
+      .legend-lbl { font-family: -apple-system, 'Geist', 'Segoe UI', system-ui, sans-serif; font-size: 9px; fill: #bfc0c0; }
+      .legend-mono { font-family: ui-monospace, 'SF Mono', 'Geist Mono', Menlo, monospace; font-size: 8px; font-weight: 500; letter-spacing: 0.18em; fill: #bfc0c0; }
+      .code-pill { font-family: ui-monospace, 'SF Mono', 'Geist Mono', Menlo, monospace; font-size: 9.5px; font-weight: 600; }
+    ]]></style>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.9" fill="rgba(245,245,245,0.08)"/>
+    </pattern>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bfc0c0"/></marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#f08a59"/></marker>
+    <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#6a95d8"/></marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#879a39"/></marker>
+    <g id="ico-term" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6M12 19h8"/></g>
+    <g id="ico-hook" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></g>
+    <g id="ico-cpu" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></g>
+    <g id="ico-pricing" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></g>
+    <g id="ico-bridge" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></g>
+    <g id="ico-disk" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></g>
+    <g id="ico-shield" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></g>
   </defs>
-
-  <!-- Background Canvas -->
-  <rect width="1200" height="640" fill="#100F0F"/>
-  <text x="24" y="40" class="hdr">01 · ARCHITECTURE &amp; DATA PIPELINE</text>
-
-  <!-- Connectors -->
-  <!-- 1. Turn to Dissector -->
-  <line x1="204" y1="318" x2="272" y2="318" stroke="#575653" stroke-width="1.2" marker-end="url(#aG)"/>
-  <rect x="216" y="311" width="44" height="13" fill="#100F0F"/>
-  <text x="238" y="321" fill="#878580" class="lbl" text-anchor="middle">USAGE</text>
-
-  <!-- 2. Dissector to Pricing Engine -->
-  <line x1="492" y1="318" x2="560" y2="318" stroke="#575653" stroke-width="1.2" marker-end="url(#aG)"/>
-  <rect x="506" y="311" width="40" height="13" fill="#100F0F"/>
-  <text x="526" y="321" fill="#878580" class="lbl" text-anchor="middle">TOKENS</text>
-
-  <!-- 3. Engine to 3 Consumers -->
-  <!-- Upper: Terminal UI -->
-  <path d="M 780,290 H 810 Q 818,290 818,280 V 196 Q 818,186 828,186 H 858" fill="none" stroke="#24837B" stroke-width="1.2" marker-end="url(#aC)"/>
-
-  <!-- Middle: Plexus Bridge -->
-  <line x1="780" y1="318" x2="858" y2="318" stroke="#879A39" stroke-width="1.2" marker-end="url(#aGr)"/>
-  <rect x="796" y="311" width="46" height="13" fill="#100F0F"/>
-  <text x="819" y="321" fill="#879A39" class="lbl" text-anchor="middle">IPC STATS</text>
-
-  <!-- Lower: Atomic WAL -->
-  <path d="M 780,346 H 810 Q 818,346 818,356 V 440 Q 818,450 828,450 H 858" fill="none" stroke="#575653" stroke-width="1.2" marker-end="url(#aG)"/>
-
-  <!-- Card 1: Turn Completion Hook Tap -->
-  <rect x="24" y="272" width="180" height="92" rx="6" fill="#1C1B1A" stroke="#343331" stroke-width="1"/>
-  <svg x="36" y="282" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DA702C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-  <text x="114" y="314" class="name" text-anchor="middle">onStop Hook</text>
-  <text x="114" y="330" class="sub" text-anchor="middle">zero-latency turn tap</text>
-  <text x="114" y="350" fill="#DA702C" class="tag" text-anchor="middle">raw telemetry</text>
-
-  <!-- Card 2: Token Dissector -->
-  <rect x="272" y="222" width="220" height="192" rx="6" fill="#1C1B1A" stroke="#343331" stroke-width="1"/>
-  <svg x="284" y="234" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#878580" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>
-  <text x="382" y="254" class="name" text-anchor="middle">Token Dissector</text>
-  <text x="382" y="270" class="sub" text-anchor="middle">three-way token categorization</text>
-
-  <!-- Metric pills inside Token Dissector -->
-  <rect x="286" y="284" width="192" height="32" rx="4" fill="#282726" stroke="#343331" stroke-width="1"/>
-  <text x="298" y="304" class="sub" fill="#CECDC3">Input</text>
-  <text x="466" y="304" font-family="'Geist Mono','Menlo',monospace" font-size="9px" font-weight="600" fill="#4385BE" text-anchor="end">inputTokens</text>
-
-  <rect x="286" y="322" width="192" height="32" rx="4" fill="#282726" stroke="#343331" stroke-width="1"/>
-  <text x="298" y="342" class="sub" fill="#CECDC3">Output</text>
-  <text x="466" y="342" font-family="'Geist Mono','Menlo',monospace" font-size="9px" font-weight="600" fill="#8B7EC8" text-anchor="end">outputTokens</text>
-
-  <rect x="286" y="360" width="192" height="32" rx="4" fill="#282726" stroke="#879A39" stroke-width="1"/>
-  <text x="298" y="380" class="sub" fill="#879A39">Cache Read</text>
-  <text x="466" y="380" font-family="'Geist Mono','Menlo',monospace" font-size="9px" font-weight="600" fill="#879A39" text-anchor="end">cacheReadTokens</text>
-
-  <!-- Card 3: Pricing & Savings Engine (Focal Card) -->
-  <rect x="560" y="202" width="220" height="232" rx="6" fill="#1C1B1A" stroke="#24837B" stroke-width="1.2"/>
-  <svg x="572" y="214" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#24837B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-  <text x="670" y="234" class="name" text-anchor="middle">Pricing Engine</text>
-  <text x="670" y="250" class="sub" text-anchor="middle">official rates &amp; prompt cache</text>
-
-  <rect x="574" y="264" width="192" height="68" rx="4" fill="#282726" stroke="#343331" stroke-width="1"/>
-  <text x="584" y="284" fill="#879A39" class="tag">Prompt Cache Savings</text>
-  <text x="584" y="302" font-family="'Geist Mono','Menlo',monospace" font-size="8.5px" font-weight="600" fill="#CECDC3">T_cache × (P_in - P_cache)</text>
-  <text x="584" y="318" class="sub">up to -90% discount</text>
-
-  <rect x="574" y="340" width="192" height="80" rx="4" fill="#282726" stroke="#343331" stroke-width="1"/>
-  <text x="584" y="360" fill="#24837B" class="tag">Context Window Gauge</text>
-  <!-- Mini Gauge Bar -->
-  <rect x="584" y="370" width="172" height="6" rx="3" fill="#343331"/>
-  <rect x="584" y="370" width="40" height="6" rx="3" fill="#24837B"/>
-  <text x="584" y="392" font-family="'Geist Mono','Menlo',monospace" font-size="8.5px" fill="#CECDC3">45.2K / 200K (23%)</text>
-  <text x="584" y="406" class="sub">compaction proximity warning</text>
-
-  <!-- Consumer 1: Terminal Box UI -->
-  <rect x="862" y="140" width="230" height="92" rx="6" fill="#1C1B1A" stroke="#343331" stroke-width="1"/>
-  <svg x="874" y="150" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#24837B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/></svg>
-  <text x="977" y="176" class="name" text-anchor="middle">Terminal Box UI</text>
-  <text x="977" y="192" class="sub" text-anchor="middle">/cost · /cost-history · /cost-models</text>
-  <text x="977" y="212" fill="#24837B" class="tag" text-anchor="middle">flexoki dark panel</text>
-
-  <!-- Consumer 2: Plexus Mod Bridge -->
-  <rect x="862" y="272" width="230" height="92" rx="6" fill="#1C1B1A" stroke="#879A39" stroke-width="1.2"/>
-  <svg x="874" y="282" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#879A39" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-  <text x="977" y="308" class="name" text-anchor="middle">Plexus Mod Bridge</text>
-  <text x="977" y="324" class="sub" text-anchor="middle">live status bar &amp; sidebar IPC</text>
-  <text x="977" y="344" fill="#879A39" class="tag" text-anchor="middle">real-time telemetry</text>
-
-  <!-- Consumer 3: Atomic Persistence WAL -->
-  <rect x="862" y="404" width="230" height="92" rx="6" fill="#1C1B1A" stroke="#343331" stroke-width="1"/>
-  <svg x="874" y="414" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#878580" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
-  <text x="977" y="440" class="name" text-anchor="middle">Atomic State WAL</text>
-  <text x="977" y="456" class="sub" text-anchor="middle">project index &amp; crash checkpoints</text>
-  <text x="977" y="476" fill="#575653" class="tag" text-anchor="middle">zero lost tokens</text>
-
-  <!-- Guard Note at bottom -->
-  <rect x="24" y="530" width="300" height="52" rx="6" fill="#1C1B1A" stroke="#343331" stroke-width="1"/>
-  <text x="38" y="552" fill="#D0A215" class="tag">Local Calculation Guard</text>
-  <text x="38" y="568" class="sub">100% computed on-device · zero cloud tracking</text>
+  <rect width="100%" height="100%" fill="#2d3142"/>
+  <rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/>
+  <text x="600" y="48" class="eyebrow" text-anchor="middle">Architecture · Cost Tracker</text>
+  <text x="600" y="86" class="title" text-anchor="middle">How Cost Tracker intercepts &amp; tracks your token consumption.</text>
+  <text x="600" y="112" class="sub" text-anchor="middle">Zero-overhead turn hook  ·  Live token &amp; cost accumulator  ·  Real-time Plexus dispatch</text>
+  <rect x="40" y="140" width="280" height="320" rx="10" fill="rgba(245,245,245,0.02)" stroke="rgba(245,245,245,0.10)" stroke-width="0.8"/>
+  <rect x="80" y="132" width="200" height="16" rx="2" fill="#2d3142"/>
+  <text x="180" y="144" class="tag" fill="rgba(191,192,192,0.65)" text-anchor="middle">1 · HOOK INTERCEPTION</text>
+  <rect x="60" y="165" width="240" height="110" rx="8" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.14)" stroke-width="0.8"/>
+  <rect x="74" y="177" width="56" height="14" rx="2" fill="#2d3142" stroke="#6a95d8" stroke-width="0.8"/>
+  <text x="102" y="187" class="tag" fill="#6a95d8" text-anchor="middle">SESSION</text>
+  <g transform="translate(262, 175) scale(0.9)" style="color:#6a95d8"><use href="#ico-term"/></g>
+  <text x="74" y="214" class="node-name">Command Code</text>
+  <text x="74" y="232" class="node-sub">User prompt · LLM completion turn</text>
+  <text x="74" y="258" class="code-pill" fill="#6a95d8">fires cmd.on("turn_end")</text>
+  <rect x="60" y="295" width="240" height="145" rx="8" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.14)" stroke-width="0.8"/>
+  <rect x="74" y="307" width="48" height="14" rx="2" fill="#2d3142" stroke="#bfc0c0" stroke-width="0.8"/>
+  <text x="98" y="317" class="tag" fill="#bfc0c0" text-anchor="middle">PAYLOAD</text>
+  <g transform="translate(262, 305) scale(0.9)" style="color:#bfc0c0"><use href="#ico-hook"/></g>
+  <text x="74" y="342" class="node-name">turn_end Hook</text>
+  <text x="74" y="360" class="node-sub">extracts raw usage from context:</text>
+  <rect x="74" y="372" width="212" height="52" rx="4" fill="#2d3142" stroke="rgba(245,245,245,0.1)" stroke-width="0.8"/>
+  <text x="86" y="388" class="code-pill" fill="#6a95d8">• inputTokens</text>
+  <text x="86" y="403" class="code-pill" fill="#8b7ec8">• outputTokens</text>
+  <text x="86" y="418" class="code-pill" fill="#879a39">• cacheReadTokens</text>
+  <path d="M 180,275 V 295" fill="none" stroke="#6a95d8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+  <line x1="300" y1="368" x2="380" y2="368" stroke="#6a95d8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+  <rect x="312" y="360" width="56" height="14" rx="2" fill="#2d3142"/>
+  <text x="340" y="370" class="arrow-lbl" fill="#6a95d8" text-anchor="middle">RAW USAGE</text>
+  <rect x="380" y="140" width="440" height="320" rx="10" fill="rgba(240,138,89,0.04)" stroke="#f08a59" stroke-width="1.2"/>
+  <rect x="500" y="132" width="200" height="16" rx="2" fill="#2d3142" stroke="#f08a59" stroke-width="0.8"/>
+  <text x="600" y="144" class="tag" fill="#f08a59" text-anchor="middle">2 · TOKEN LEDGER &amp; PRICING</text>
+  <rect x="400" y="165" width="400" height="42" rx="6" fill="#2d3142" stroke="rgba(245,245,245,0.12)" stroke-width="0.8"/>
+  <g transform="translate(414, 176) scale(0.9)" style="color:#bfc0c0"><use href="#ico-pricing"/></g>
+  <text x="442" y="185" class="node-name" style="font-size:12px">Model Pricing Table</text>
+  <text x="442" y="198" class="node-sub">live rates per 1M tokens (Claude, OpenAI, Gemini, DeepSeek)</text>
+  <rect x="400" y="218" width="400" height="222" rx="8" fill="#2d3142" stroke="rgba(240,138,89,0.3)" stroke-width="0.8"/>
+  <rect x="414" y="230" width="56" height="14" rx="2" fill="rgba(240,138,89,0.15)" stroke="#f08a59" stroke-width="0.8"/>
+  <text x="442" y="240" class="tag" fill="#f08a59" text-anchor="middle">LEDGER</text>
+  <g transform="translate(764, 228) scale(0.9)" style="color:#f08a59"><use href="#ico-cpu"/></g>
+  <text x="414" y="266" class="node-name">Real-Time Token Accounting</text>
+  <text x="414" y="284" class="node-sub">Updates in-memory session object on every completed turn:</text>
+  <rect x="414" y="296" width="372" height="34" rx="4" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.08)" stroke-width="0.8"/>
+  <text x="426" y="310" class="tag" fill="#6a95d8">SESSION TOTALS</text>
+  <text x="426" y="323" class="node-sub">totalInput += in  ·  totalOutput += out  ·  totalCache += cache</text>
+  <rect x="414" y="336" width="372" height="34" rx="4" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.08)" stroke-width="0.8"/>
+  <text x="426" y="350" class="tag" fill="#f08a59">DOLLAR COST</text>
+  <text x="426" y="363" class="node-sub">totalCost += computeCost(model, input, output, cache)</text>
+  <rect x="414" y="376" width="372" height="52" rx="4" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.08)" stroke-width="0.8"/>
+  <text x="426" y="392" class="tag" fill="#879a39">CONTEXT GAUGE</text>
+  <text x="772" y="392" class="code-pill" fill="#f5f5f5" text-anchor="end">45.2K / 200K (23%)</text>
+  <rect x="426" y="400" width="348" height="6" rx="3" fill="rgba(245,245,245,0.1)"/>
+  <rect x="426" y="400" width="80" height="6" rx="3" fill="#879a39"/>
+  <text x="426" y="420" class="node-sub">Calculates proximity to model limit to anticipate compaction</text>
+  <path d="M 800,280 H 840 Q 850,280 850,230 V 220 Q 850,210 860,210 H 880" fill="none" stroke="#f08a59" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+  <rect x="822" y="235" width="56" height="14" rx="2" fill="#2d3142"/>
+  <text x="850" y="245" class="arrow-lbl" fill="#f08a59" text-anchor="middle">FILE IPC</text>
+  <line x1="800" y1="330" x2="880" y2="330" stroke="#6a95d8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+  <rect x="824" y="322" width="52" height="14" rx="2" fill="#2d3142"/>
+  <text x="850" y="332" class="arrow-lbl" fill="#6a95d8" text-anchor="middle">CLI TUI</text>
+  <path d="M 800,380 H 840 Q 850,380 850,420 V 430 Q 850,440 860,440 H 880" fill="none" stroke="#879a39" stroke-width="1.2" marker-end="url(#arrow-green)"/>
+  <rect x="824" y="415" width="52" height="14" rx="2" fill="#2d3142"/>
+  <text x="850" y="425" class="arrow-lbl" fill="#879a39" text-anchor="middle">ATOMIC</text>
+  <rect x="880" y="140" width="280" height="320" rx="10" fill="rgba(245,245,245,0.02)" stroke="rgba(245,245,245,0.10)" stroke-width="0.8"/>
+  <rect x="920" y="132" width="200" height="16" rx="2" fill="#2d3142"/>
+  <text x="1020" y="144" class="tag" fill="rgba(191,192,192,0.65)" text-anchor="middle">3 · LIVE TELEMETRY SURFACES</text>
+  <rect x="900" y="165" width="240" height="88" rx="8" fill="rgba(240,138,89,0.08)" stroke="#f08a59" stroke-width="1.2"/>
+  <rect x="914" y="177" width="52" height="14" rx="2" fill="#2d3142" stroke="#f08a59" stroke-width="0.8"/>
+  <text x="940" y="187" class="tag" fill="#f08a59" text-anchor="middle">PLEXUS</text>
+  <g transform="translate(1102, 175) scale(0.9)" style="color:#f08a59"><use href="#ico-bridge"/></g>
+  <text x="914" y="214" class="node-name">Plexus Mod Bridge</text>
+  <text x="914" y="230" class="node-sub">writes to /tmp/cc-sidebar/mods-data/</text>
+  <text x="914" y="244" class="node-sub" fill="#f08a59">Live sidebar pills &amp; telemetry dock</text>
+  <rect x="900" y="265" width="240" height="88" rx="8" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.14)" stroke-width="0.8"/>
+  <rect x="914" y="277" width="44" height="14" rx="2" fill="#2d3142" stroke="#6a95d8" stroke-width="0.8"/>
+  <text x="936" y="287" class="tag" fill="#6a95d8" text-anchor="middle">CLI UI</text>
+  <g transform="translate(1102, 275) scale(0.9)" style="color:#6a95d8"><use href="#ico-term"/></g>
+  <text x="914" y="314" class="node-name">Interactive Commands</text>
+  <text x="914" y="330" class="node-sub">/cost · /cost-history · /cost-models</text>
+  <text x="914" y="344" class="node-sub">Per-turn auto-display toast in terminal</text>
+  <rect x="900" y="365" width="240" height="85" rx="8" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.14)" stroke-width="0.8"/>
+  <rect x="914" y="377" width="40" height="14" rx="2" fill="#2d3142" stroke="#879a39" stroke-width="0.8"/>
+  <text x="934" y="387" class="tag" fill="#879a39" text-anchor="middle">DISK</text>
+  <g transform="translate(1102, 375) scale(0.9)" style="color:#879a39"><use href="#ico-disk"/></g>
+  <text x="914" y="414" class="node-name">Crash Checkpoints</text>
+  <text x="914" y="430" class="node-sub">Atomic snapshot in ~/.commandcode/data/</text>
+  <text x="914" y="444" class="node-sub" fill="#879a39">0 token loss on terminal exit</text>
+  <rect x="40" y="480" width="1120" height="52" rx="6" fill="rgba(135,154,57,0.06)" stroke="rgba(135,154,57,0.30)" stroke-width="0.8"/>
+  <g transform="translate(56, 494) scale(0.9)" style="color:#879a39"><use href="#ico-shield"/></g>
+  <text x="88" y="504" class="node-name" fill="#879a39">Local Execution &amp; Zero Telemetry Leak</text>
+  <text x="88" y="520" class="node-sub">Passive turn_end listener  ·  &lt;0.5ms computation overhead  ·  100% computed on-device  ·  Zero network calls</text>
+  <rect x="1040" y="494" width="106" height="22" rx="4" fill="#2d3142" stroke="#879a39" stroke-width="0.8"/>
+  <text x="1093" y="508" class="tag" fill="#879a39" text-anchor="middle">ZERO OVERHEAD</text>
+  <line x1="40" y1="552" x2="1160" y2="552" stroke="rgba(245,245,245,0.12)" stroke-width="0.8"/>
+  <text x="40" y="582" class="legend-mono">TYPE KEY</text>
+  <rect x="140" y="572" width="16" height="12" rx="2" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.14)"/>
+  <text x="166" y="582" class="legend-lbl">Hook Interception</text>
+  <rect x="300" y="572" width="16" height="12" rx="2" fill="rgba(240,138,89,0.12)" stroke="#f08a59"/>
+  <text x="326" y="582" class="legend-lbl">In-Memory Token Ledger</text>
+  <rect x="500" y="572" width="16" height="12" rx="2" fill="rgba(240,138,89,0.08)" stroke="#f08a59"/>
+  <text x="526" y="582" class="legend-lbl">Plexus Mod Bridge</text>
+  <line x1="680" y1="578" x2="712" y2="578" stroke="#6a95d8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+  <text x="724" y="582" class="legend-lbl">Turn Intercept Path</text>
+  <line x1="870" y1="578" x2="902" y2="578" stroke="#f08a59" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+  <text x="914" y="582" class="legend-lbl">Plexus IPC Bridge</text>
+  <line x1="1050" y1="578" x2="1082" y2="578" stroke="#879a39" stroke-width="1.2" marker-end="url(#arrow-green)"/>
+  <text x="1094" y="582" class="legend-lbl">Checkpoint Write</text>
 </svg>
