@@ -159,8 +159,12 @@ export default function costTracker(cmd: ModApi) {
     }
   });
 
-  cmd.on("session_end", async () => {
-    await flushSessionToProject(cmd);
+  cmd.on("session_shutdown", async () => {
+    try {
+      await flushSessionToProject(cmd);
+    } catch (e) {
+      log(`shutdown flush failed: ${String(e).slice(0, 160)}`);
+    }
   });
 
   pushDashboardStats(cmd).catch((e: unknown) => log(`startup push: ${String(e)}`));
