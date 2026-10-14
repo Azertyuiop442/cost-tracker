@@ -3,7 +3,22 @@
   "version": "0.2.1",
   "description": "Real-time token cost, prompt cache savings, and context monitor for Command Code",
   "type": "module",
-  "private": true,
+  "license": "MIT",
+  "author": "Azertyuiop442",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azertyuiop442/cost-tracker.git"
+  },
+  "keywords": [
+    "command-code",
+    "mod",
+    "cost",
+    "tokens",
+    "telemetry"
+  ],
+  "files": [
+    "*.ts"
+  ],
   "commandcode": {
     "mods": [
       "./index.ts"

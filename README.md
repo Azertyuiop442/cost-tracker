@@ -18,9 +18,19 @@ Built for **[Plexus](https://github.com/Azertyuiop442/Plexus)**. Streams live co
 
 ## Installation
 
+Official install (user scope - loads on every session):
+
+```bash
+cmd mods add Azertyuiop442/cost-tracker -g
+```
+
+Manual fallback:
+
 ```bash
 git clone https://github.com/Azertyuiop442/cost-tracker.git ~/.commandcode/mods/cost-tracker
 ```
+
+Restart your Command Code session to load the mod.
 
 ---
 
@@ -63,4 +73,4 @@ Cost Tracker operates as an autonomous background companion mod, hooking into se
 
 ## License
 
-MIT License. Free for personal, academic, and open-source use.
+MIT License. Free to use, modify, and redistribute, including commercially; the only requirement is keeping the copyright notice.
