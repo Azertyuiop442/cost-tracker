@@ -21,8 +21,10 @@ Built for **[Plexus](https://github.com/Azertyuiop442/Plexus)**. Streams live co
 Official install (user scope - loads on every session):
 
 ```bash
-cmd mods add Azertyuiop442/cost-tracker -g
+cmd mods add cost-tracker -g
 ```
+
+Alternative source (same package, straight from GitHub): `cmd mods add Azertyuiop442/cost-tracker -g`.
 
 Manual fallback:
 
