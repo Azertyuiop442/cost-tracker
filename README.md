@@ -3,11 +3,11 @@
 </p>
 
 <p align="center">
-  <b>Real-time token cost, volume accounting, and cache telemetry for Command Code.</b>
+  <b>Real-time token cost, volume accounting, and cache telemetry for AI coding sessions.</b>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Azertyuiop442/cost-tracker/releases"><img src="https://shieldcn.dev/badge/cost--tracker-v0.2.0-24837b.svg?variant=outline" alt="Version"/></a>
+  <a href="https://github.com/Azertyuiop442/cost-tracker/releases"><img src="https://shieldcn.dev/badge/cost--tracker-v0.2.2-24837b.svg?variant=outline" alt="Version"/></a>
   <a href="https://github.com/Azertyuiop442/cost-tracker"><img src="https://shieldcn.dev/github/stars/Azertyuiop442/cost-tracker.svg?variant=outline" alt="GitHub Stars"/></a>
   <a href="LICENSE.md"><img src="https://shieldcn.dev/badge/license-MIT.svg?variant=outline" alt="License"/></a>
 </p>
@@ -18,7 +18,10 @@ Built for **[Plexus](https://github.com/Azertyuiop442/Plexus)**. Streams live co
 
 ## Installation
 
-Official install (user scope - loads on every session):
+Runs inside Command Code (companion mod - live metrics for the Plexus dock and sidebar).
+
+<details>
+<summary><b>Command Code</b> - official install (user scope, loads on every session)</summary>
 
 ```bash
 cmd mods add cost-tracker -g
@@ -33,6 +36,8 @@ git clone https://github.com/Azertyuiop442/cost-tracker.git ~/.commandcode/mods/
 ```
 
 Restart your Command Code session to load the mod.
+
+</details>
 
 ---
 
